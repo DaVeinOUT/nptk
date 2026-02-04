@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saint Ellah 💝 Chocolats</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Crimson Text', serif;
+            overflow: hidden;
+            background: radial-gradient(circle at top, #1a0a0f 0%, #4a1428 45%, #8b2f4a 100%);
+            color: #fff;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="%23ff69b4" opacity="0.6"/><circle cx="12" cy="12" r="3" fill="%23fff"/></svg>'), auto;
+        }
+        
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        .title {
+            position: absolute;
+            top: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            animation: fadeInDown 1.2s ease-out;
+        }
+        
+        .title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff69b4, #ffd1dc, #ff1493);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+        
+        .title p {
+            font-size: clamp(1rem, 2.5vw, 1.6rem);
+            font-style: italic;
+            color: #ffd1dc;
+            opacity: 0.9;
+            letter-spacing: 0.1em;
+        }
+        
+        .instruction {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: clamp(1.1rem, 3vw, 1.8rem);
+            color: #ffd1dc;
+            animation: pulse 2s ease-in-out infinite;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.4s;
+        }
+        
+        .instruction.hidden {
+            opacity: 0;
+        }
+        
+        .hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 1.6rem;
+            animation: float 10s linear forwards;
+            opacity: 0;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: translateX(-50%) scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateX(-50%) scale(1.05);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(105vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(20px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    
+    <div id="overlay">
+        <div class="title">
+            <h1>Saint Ellah</h1>
+            <p>Un petit moment de douceur</p>
+        </div>
+        
+        <div class="instruction" id="instruction">
+            ✨ Clique sur la boîte pour l’ouvrir ✨
+        </div>
+        
+        <div class="hearts" id="hearts"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ==== Scène de base ====
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        
+        camera.position.set(0, 2, 8);
+        camera.lookAt(0, 0, 0);
+        
+        // Lumière
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+        
+        const spotLight = new THREE.SpotLight(0xffd1dc, 1.5);
+        spotLight.position.set(5, 10, 5);
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+        
+        // Boîte de chocolats (proche de ton code d’origine)
+        const boxGroup = new THREE.Group();
+        scene.add(boxGroup);
+        
+        const boxBaseGeometry = new THREE.BoxGeometry(3, 0.3, 2.5);
+        const boxBaseMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x8b0000,
+            metalness: 0.3,
+            roughness: 0.4
+        });
+        const boxBase = new THREE.Mesh(boxBaseGeometry, boxBaseMaterial);
+        boxBase.castShadow = true;
+        boxBase.receiveShadow = true;
+        boxGroup.add(boxBase);
+        
+        const boxLidGeometry = new THREE.BoxGeometry(3.1, 0.4, 2.6);
+        const boxLidMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xa52a2a,
+            metalness: 0.4,
+            roughness: 0.3
+        });
+        const boxLid = new THREE.Mesh(boxLidGeometry, boxLidMaterial);
+        boxLid.position.y = 0.35;
+        boxLid.castShadow = true;
+        boxGroup.add(boxLid);
+        
+        // Petit ruban simple
+        const ribbonGeometry = new THREE.BoxGeometry(3.2, 0.15, 0.25);
+        const ribbonMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xffd700,
+            metalness: 0.7,
+            roughness: 0.2
+        });
+        const ribbon = new THREE.Mesh(ribbonGeometry, ribbonMaterial);
+        ribbon.position.y = 0.5;
+        boxGroup.add(ribbon);
+        
+        // Bouteille d’eau
+        const waterBottle = new THREE.Group();
+        waterBottle.visible = false;
+        scene.add(waterBottle);
+        
+        const bottleBodyGeometry = new THREE.CylinderGeometry(0.3, 0.35, 2, 32);
+        const bottleBodyMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x87CEEB,
+            transparent: true,
+            opacity: 0.7,
+            metalness: 0.1,
+            roughness: 0.2
+        });
+        const bottleBody = new THREE.Mesh(bottleBodyGeometry, bottleBodyMaterial);
+        bottleBody.castShadow = true;
+        waterBottle.add(bottleBody);
+        
+        const capGeometry = new THREE.CylinderGeometry(0.25, 0.25, 0.3, 32);
+        const capMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x4169E1,
+            metalness: 0.3,
+            roughness: 0.4
+        });
+        const cap = new THREE.Mesh(capGeometry, capMaterial);
+        cap.position.y = 1.15;
+        cap.castShadow = true;
+        waterBottle.add(cap);
+        
+        const waterGeometry = new THREE.CylinderGeometry(0.28, 0.33, 1.9, 32);
+        const waterMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x00BFFF,
+            transparent: true,
+            opacity: 0.5,
+            metalness: 0.0,
+            roughness: 0.1
+        });
+        const water = new THREE.Mesh(waterGeometry, waterMaterial);
+        water.position.y = -0.05;
+        waterBottle.add(water);
+        
+        waterBottle.position.y = 0.5;
+        
+        // État d’animation
+        let isOpened = false;
+        
+        // Cœurs en fond
+        const heartsContainer = document.getElementById('hearts');
+        const heartChars = ['💖', '💘', '💕'];
+        
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (8 + Math.random() * 4) + 's';
+            heartsContainer.appendChild(heart);
+            setTimeout(() => heart.remove(), 13000);
+        }
+        
+        setInterval(createHeart, 1500);
+        
+        // Clic : tout disparaît, seule la bouteille reste
+        function onClick() {
+            if (isOpened) return;
+            isOpened = true;
+
+            // On enlève tout l’overlay (titre, texte, cœurs)
+            const overlay = document.getElementById('overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+
+            // On cache la boîte et on ne garde que la bouteille
+            boxGroup.visible = false;
+            waterBottle.visible = true;
+            waterBottle.position.set(0, 0.5, 0);
+        }
+        
+        window.addEventListener('click', onClick);
+        
+        // Boucle d’animation
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (!isOpened) {
+                boxGroup.rotation.y += 0.004;
+            }
+            
+            if (isOpened) {
+                waterBottle.rotation.y += 0.01;
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        animate();
+    </script>
+</body>
+</html>
