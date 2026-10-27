@@ -30,12 +30,15 @@ npm install
 | Commande        | À quoi ça sert                                                                    |
 | --------------- | --------------------------------------------------------------------------------- |
 | `npm run dev`   | Lance le site en mode développement sur <http://localhost:3000> (se recharge seul) |
-| `npm run build` | Prépare la version finale, optimisée                                              |
-| `npm run start` | Lance la version finale (après `npm run build`)                                   |
+| `npm run build` | Prépare la version finale : des fichiers HTML/CSS/JS dans le dossier `out/`       |
+| `npm run start` | Affiche la version finale (dossier `out/`) sur <http://localhost:3000>            |
 | `npm test`      | Lance les tests automatiques (Vitest)                                             |
 | `npm run lint`  | Vérifie le style et les erreurs courantes du code (ESLint)                        |
 
 Pour un atelier, le plus fiable est d'utiliser le site déployé sur Vercel (voir § 6), ou `npm run build` puis `npm run start`.
+
+Le jeu n'a pas besoin de serveur : `npm run build` produit un site « statique » (de simples fichiers dans `out/`).
+C'est pour ça qu'il fonctionne chez n'importe quel hébergeur (Netlify, Vercel, GitHub Pages…).
 
 ## 3. Animer une partie
 
@@ -218,7 +221,7 @@ Aucune variable d'environnement n'est nécessaire. Si un jour il en faut une, el
 
 ### Avec Netlify
 
-Le dépôt contient un fichier `netlify.toml` qui indique à Netlify de construire le jeu (`npm run build`, dossier `.next`).
+Le dépôt contient un fichier `netlify.toml` qui indique à Netlify de construire le jeu (`npm run build`, dossier `out`).
 Sans lui, Netlify afficherait l'ancien fichier `index.html` à la racine au lieu du jeu. Il suffit d'importer le dépôt
 sur [netlify.com](https://www.netlify.com) (« Add new site » → « Import an existing project ») : les réglages sont lus automatiquement.
 
@@ -231,7 +234,7 @@ sur [netlify.com](https://www.netlify.com) (« Add new site » → « Import an 
 - Seule saisie : les noms d'équipe (20 caractères max, caractères invisibles retirés, affichés comme du texte par React).
   Aucun `dangerouslySetInnerHTML`.
 - Liens vers les sources : `target="_blank"` avec `rel="noopener noreferrer"`.
-- En-têtes de sécurité HTTP configurés dans `next.config.ts`.
+- En-têtes de sécurité HTTP configurés dans `netlify.toml` (Netlify) et `vercel.json` (Vercel).
 - Résultat annoncé aux lecteurs d'écran (`aria-live`), boutons accessibles au clavier, contour de focus jaune bien visible,
   contrastes vérifiés (niveau AA), animations coupées si l'ordinateur demande « moins d'animations ».
 

@@ -1,9 +1,24 @@
-# Configuration Netlify : construire le jeu Next.js au lieu de servir
-# directement les fichiers du dépôt (sinon Netlify affiche l'ancien index.html).
+# Configuration Netlify : construire le jeu au lieu de servir directement les
+# fichiers du dépôt (sinon Netlify affiche l'ancien index.html à la racine).
 # Ce fichier remplace les réglages « Build settings » de l'interface Netlify.
 [build]
   command = "npm run build"
-  publish = ".next"
+  # Next.js exporte le jeu en fichiers statiques dans le dossier « out »
+  # (voir output: "export" dans next.config.ts).
+  publish = "out"
 
 [build.environment]
   NODE_VERSION = "22"
+
+# En-têtes de sécurité envoyés avec chaque page.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Le navigateur ne doit pas « deviner » le type d'un fichier.
+    X-Content-Type-Options = "nosniff"
+    # Quand on clique sur une source, le média ne voit pas l'adresse complète du jeu.
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Le jeu ne peut pas être affiché dans un cadre (iframe) sur un autre site.
+    X-Frame-Options = "SAMEORIGIN"
+    # Le jeu n'a besoin ni de la caméra, ni du micro, ni de la position.
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

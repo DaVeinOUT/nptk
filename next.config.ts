@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Réglages par défaut de Next.js 16 (créés par create-next-app).
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Le jeu tourne entièrement dans le navigateur : `npm run build` produit de simples
+  // fichiers HTML/CSS/JS dans le dossier `out/`, que n'importe quel hébergeur
+  // (Netlify, Vercel, GitHub Pages…) sait servir sans configuration particulière.
+  output: "export",
+  // (Les options cacheComponents et partialPrefetching, activées par défaut à la création
+  // du projet, sont retirées : elles ont besoin d'un serveur et le jeu n'en utilise pas.)
   turbopack: {
     rules: {
       "*.css": {
@@ -12,26 +15,8 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  // Ne pas annoncer « Next.js » dans les en-têtes HTTP.
-  poweredByHeader: false,
-  // En-têtes de sécurité envoyés avec chaque page.
-  headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: [
-          // Le navigateur ne doit pas « deviner » le type d'un fichier.
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          // Quand on clique sur une source, le média ne voit pas l'adresse complète du jeu.
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          // Le jeu ne peut pas être affiché dans un cadre (iframe) sur un autre site.
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          // Le jeu n'a besoin ni de la caméra, ni du micro, ni de la position.
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-        ],
-      },
-    ];
-  },
+  // Les en-têtes de sécurité HTTP ne peuvent pas être définis ici avec un export statique :
+  // ils sont dans netlify.toml (Netlify) et vercel.json (Vercel).
 };
 
 export default nextConfig;
