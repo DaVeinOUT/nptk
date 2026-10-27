@@ -1,0 +1,9 @@
+# Configuration Netlify : construire le jeu Next.js au lieu de servir
+# directement les fichiers du dépôt (sinon Netlify affiche l'ancien index.html).
+# Ce fichier remplace les réglages « Build settings » de l'interface Netlify.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

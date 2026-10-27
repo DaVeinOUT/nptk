@@ -216,6 +216,12 @@ Ensuite, **chaque modification envoyée sur la branche principale** (`main`) est
 Aucune variable d'environnement n'est nécessaire. Si un jour il en faut une, elle se met dans un fichier `.env.local`
 (jamais dans le code, ce fichier n'est pas envoyé sur GitHub) et dans **Settings → Environment Variables** sur Vercel.
 
+### Avec Netlify
+
+Le dépôt contient un fichier `netlify.toml` qui indique à Netlify de construire le jeu (`npm run build`, dossier `.next`).
+Sans lui, Netlify afficherait l'ancien fichier `index.html` à la racine au lieu du jeu. Il suffit d'importer le dépôt
+sur [netlify.com](https://www.netlify.com) (« Add new site » → « Import an existing project ») : les réglages sont lus automatiquement.
+
 **Conseil atelier** : ouvre le site avant l'atelier et vérifie la connexion de la salle. Mets le navigateur en plein écran (`F11`).
 
 ---
