@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/*
+  Thème « dossier d'enquête ».
+  Chaque couleur déclarée ici devient une classe Tailwind :
+  --color-nuit → bg-nuit, text-nuit, border-nuit…
+*/
+/* Variante « court: » = écran peu haut (vidéoprojecteur 1280×720, 1024×768…). */
+@custom-variant court (@media (max-height: 820px));
+
+@theme {
+  --color-nuit: #0e1a2b; /* fond */
+  --color-nuit-clair: #1b2d45; /* panneaux sur le fond */
+  --color-papier: #f4eedf; /* cartes */
+  --color-alerte: #e63946; /* fake (grandes surfaces) */
+  --color-alerte-fonce: #b91c28; /* fake (petits textes : meilleur contraste) */
+  --color-verite: #2a9d8f; /* vrai (grandes surfaces) */
+  --color-verite-fonce: #1a6b61; /* vrai (petits textes) */
+  --color-surligneur: #ffd166; /* accents */
+
+  --font-titre: var(--font-archivo-black), "Arial Black", sans-serif;
+  --font-sans: var(--font-inter), Arial, sans-serif;
+  --font-mono: var(--font-plex-mono), "Courier New", monospace;
+
+  --animate-apparition: apparition 0.45s ease-out both;
+  --animate-tampon: tampon 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  --animate-clignote: clignote 1s ease-in-out infinite;
+
+  /* La carte arrive en glissant légèrement vers le haut. */
+  @keyframes apparition {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Le tampon « s'abat » : il part de très grand et se pose en tournant un peu. */
+  @keyframes tampon {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(-4deg) scale(2.6);
+    }
+    70% {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(-13deg) scale(0.94);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(-12deg) scale(1);
+    }
+  }
+
+  @keyframes clignote {
+    50% {
+      opacity: 0.55;
+    }
+  }
+}
+
+/* Contour de focus bien visible au vidéoprojecteur. */
+:focus-visible {
+  outline: 4px solid var(--color-surligneur);
+  outline-offset: 4px;
+}
+
+/* Si l'ordinateur demande moins d'animations, on les coupe toutes. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
